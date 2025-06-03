@@ -8,19 +8,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   }
 
   try {
-    const { url, recaptchaToken } = req.body;
+    const { url } = req.body; // ✅ FIXED: Removed recaptchaToken
 
-    // Verify reCAPTCHA
-    const recaptchaResponse = await fetch(
-      `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${recaptchaToken}`,
-      { method: 'POST' }
-    );
-    
-    const recaptchaData = await recaptchaResponse.json();
-    
-    if (!recaptchaData.success) {
-      return res.status(400).json({ error: 'reCAPTCHA verification failed' });
-    }
+    // ✅ FIXED: Removed all ReCAPTCHA verification code
 
     // Validate URL
     if (!url || !isValidUrl(url)) {

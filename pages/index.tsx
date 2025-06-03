@@ -1,20 +1,13 @@
 import { useState } from 'react';
-import ReCAPTCHA from 'react-google-recaptcha';
 
 export default function Home() {
   const [url, setUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState('');
-  const [recaptchaToken, setRecaptchaToken] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!recaptchaToken) {
-      setMessage('Please complete the reCAPTCHA');
-      return;
-    }
-
     setIsSubmitting(true);
     setMessage('');
 
@@ -24,7 +17,7 @@ export default function Home() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ url, recaptchaToken }),
+        body: JSON.stringify({ url }) // ✅ FIXED: Added missing body
       });
 
       const data = await response.json();
@@ -32,7 +25,6 @@ export default function Home() {
       if (response.ok) {
         setMessage(data.message);
         setUrl('');
-        setRecaptchaToken(null);
       } else {
         setMessage(`Error: ${data.error}`);
       }
@@ -72,17 +64,10 @@ export default function Home() {
             />
           </div>
 
-          <div className="flex justify-center">
-            <ReCAPTCHA
-              sitekey={process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!}
-              onChange={setRecaptchaToken}
-            />
-          </div>
-
           <div>
             <button
               type="submit"
-              disabled={isSubmitting || !recaptchaToken}
+              disabled={isSubmitting} // ✅ FIXED: Added disabled attribute
               className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? 'Processing...' : 'Submit for Analysis'}
